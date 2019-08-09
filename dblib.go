@@ -1,0 +1,126 @@
+package dblib
+
+import (
+	"database/sql"
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/alrusov/misc"
+)
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
+// DB --
+type DB struct {
+	driver          string
+	dsn             string
+	db              *sql.DB
+	maxRetry        int
+	delayAfterError time.Duration
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
+// SecureString --
+func (me *DB) SecureString(s string) string {
+	return strings.Replace(
+		strings.Replace(s, `\`, `\\`, -1),
+		`'`, `''`, -1)
+
+}
+
+func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{}) (result interface{}, err error) {
+
+	if !secured {
+		for i, v := range prm {
+			switch v.(type) {
+			case string:
+				prm[i] = me.SecureString(prm[i].(string))
+			}
+		}
+	}
+
+	preparedQuery := strings.TrimSpace(fmt.Sprintf(query, prm...))
+
+	for i := 0; i < me.maxRetry; i++ {
+		if isOpen {
+			result, err = me.db.Query(preparedQuery)
+		} else {
+			result, err = me.db.Exec(preparedQuery)
+		}
+
+		if err == nil {
+			break
+		} else {
+			//if (err == mysql.ErrInvalidConn) || strings.Contains(err.Error(), " connectex:") {
+			if strings.Contains(err.Error(), " connectex:") {
+				err = fmt.Errorf("Exec query (%s) error (%s), try %d from %d", preparedQuery, err.Error(), i+1, me.maxRetry)
+				if i < me.maxRetry-1 {
+					misc.Sleep(me.delayAfterError)
+				}
+			} else {
+				err = fmt.Errorf("Exec query (%s) error (%s)", preparedQuery, err.Error())
+				break
+			}
+		}
+	}
+
+	return result, err
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
+// OpenRecordset --
+func (me *DB) OpenRecordset(query string, secured bool, prm ...interface{}) (result *sql.Rows, err error) {
+	var r interface{}
+	r, err = me.execSQL(true, query, secured, prm...)
+	if err == nil {
+		result = r.(*sql.Rows)
+	} else if result != nil {
+		result.Close()
+		result = nil
+	}
+	return result, err
+}
+
+// Exec --
+func (me *DB) Exec(query string, secured bool, prm ...interface{}) (result sql.Result, err error) {
+	var r interface{}
+	r, err = me.execSQL(false, query, secured, prm...)
+	if err == nil {
+		result = r.(sql.Result)
+	}
+
+	return result, err
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
+func exit(code int, p interface{}) {
+	db := p.(*DB)
+	if (db != nil) && (db.db != nil) {
+		db.db.Close()
+	}
+}
+
+// Init --
+func (me *DB) Init(driver string, dsn string, maxConn int, maxRetry int) error {
+	me.driver = driver
+	me.dsn = dsn
+	me.maxRetry = maxRetry
+	me.delayAfterError = 3 * time.Second
+
+	db, err := sql.Open(me.driver, me.dsn)
+	if err != nil {
+		return err
+	}
+
+	db.SetMaxOpenConns(maxConn)
+	me.db = db
+	misc.AddExitFunc("dblib.exit", exit, me)
+
+	return nil
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
