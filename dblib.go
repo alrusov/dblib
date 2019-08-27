@@ -2,6 +2,7 @@ package dblib
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -76,7 +77,12 @@ func (me *DB) OpenRecordset(query string, secured bool, prm ...interface{}) (res
 	var r interface{}
 	r, err = me.execSQL(true, query, secured, prm...)
 	if err == nil {
-		result = r.(*sql.Rows)
+		var ok bool
+		result, ok = r.(*sql.Rows)
+		if !ok {
+			result = nil
+			err = errors.New("Bad result type")
+		}
 	} else if result != nil {
 		result.Close()
 		result = nil
@@ -89,7 +95,12 @@ func (me *DB) Exec(query string, secured bool, prm ...interface{}) (result sql.R
 	var r interface{}
 	r, err = me.execSQL(false, query, secured, prm...)
 	if err == nil {
-		result = r.(sql.Result)
+		var ok bool
+		result, ok = r.(sql.Result)
+		if !ok {
+			result = nil
+			err = errors.New("Bad result type")
+		}
 	}
 
 	return result, err
@@ -98,8 +109,8 @@ func (me *DB) Exec(query string, secured bool, prm ...interface{}) (result sql.R
 //----------------------------------------------------------------------------------------------------------------------------//
 
 func exit(code int, p interface{}) {
-	db := p.(*DB)
-	if (db != nil) && (db.db != nil) {
+	db, ok := p.(*DB)
+	if ok && (db != nil) && (db.db != nil) {
 		db.db.Close()
 	}
 }
