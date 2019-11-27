@@ -2,6 +2,8 @@ package dblib
 
 import (
 	"testing"
+
+	"github.com/alrusov/misc"
 )
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -9,7 +11,7 @@ import (
 func TestSecureString(t *testing.T) {
 	db := &DB{}
 
-	data := make(map[string]string)
+	data := make(misc.StringMap)
 	data[`aaa`] = `aaa`
 	data[`\`] = `\\`
 	data[`'`] = `''`
