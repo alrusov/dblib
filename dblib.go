@@ -24,7 +24,7 @@ type DB struct {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 // SecureString --
-func (me *DB) SecureString(s string) string {
+func SecureString(s string) string {
 	return strings.Replace(
 		strings.Replace(s, `\`, `\\`, -1),
 		`'`, `''`, -1)
@@ -37,7 +37,7 @@ func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{
 		for i, v := range prm {
 			switch v.(type) {
 			case string:
-				prm[i] = me.SecureString(prm[i].(string))
+				prm[i] = SecureString(prm[i].(string))
 			}
 		}
 	}
