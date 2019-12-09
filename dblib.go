@@ -12,6 +12,17 @@ import (
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
+const (
+	// MYSQL --
+	MYSQL = "mysql"
+	// PGSQL --
+	PGSQL = "pgsql"
+	// MSSQL --
+	MSSQL = "mssql"
+)
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
 // DB --
 type DB struct {
 	driver          string
@@ -25,9 +36,9 @@ type DB struct {
 
 var (
 	replacers = map[string]*strings.Replacer{
-		"mysql": strings.NewReplacer(`'`, `\'`, `\`, `\\`),
-		"pgsql": strings.NewReplacer(`'`, `\'`, `\`, `\\`),
-		"mssql": strings.NewReplacer(`'`, `''`),
+		MYSQL: strings.NewReplacer(`'`, `\'`, `\`, `\\`),
+		PGSQL: strings.NewReplacer(`'`, `\'`, `\`, `\\`),
+		MSSQL: strings.NewReplacer(`'`, `''`),
 	}
 )
 

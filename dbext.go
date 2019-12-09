@@ -44,11 +44,11 @@ func NewDBext(cfg *config.DB, queries misc.StringMap) (dbExt *DBext, err error) 
 	dbExt.tuner = emptyTuner
 
 	switch cfg.Type {
-	case "mysql":
+	case MYSQL:
 		dbExt.tuner = mysqlTuner
-	case "pgsql":
+	case PGSQL:
 		dbExt.tuner = pgsqlTuner
-	case "mssql":
+	case MSSQL:
 		dbExt.tuner = mssqlTuner
 	}
 

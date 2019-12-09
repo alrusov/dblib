@@ -21,8 +21,8 @@ func TestSecureString(t *testing.T) {
 	}
 
 	dbs := map[string]data{
-		"mysql": {
-			&DB{driver: "mysql"},
+		MYSQL: {
+			&DB{driver: MYSQL},
 			[]string{
 				`aaa`,
 				`\\`,
@@ -31,8 +31,8 @@ func TestSecureString(t *testing.T) {
 				`\'12\\34\\\\56\'78\'\'9\'`,
 			},
 		},
-		"pgsql": {
-			&DB{driver: "pgsql"},
+		PGSQL: {
+			&DB{driver: PGSQL},
 			[]string{
 				`aaa`,
 				`\\`,
@@ -41,8 +41,8 @@ func TestSecureString(t *testing.T) {
 				`\'12\\34\\\\56\'78\'\'9\'`,
 			},
 		},
-		"mssql": {
-			&DB{driver: "mssql"},
+		MSSQL: {
+			&DB{driver: MSSQL},
 			[]string{
 				`aaa`,
 				`\`,
