@@ -2,24 +2,64 @@ package dblib
 
 import (
 	"testing"
-
-	"github.com/alrusov/misc"
 )
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------//
 
 func TestSecureString(t *testing.T) {
-	data := make(misc.StringMap)
-	data[`aaa`] = `aaa`
-	data[`\`] = `\\`
-	data[`'`] = `''`
-	data[`'\'`] = `''\\''`
-	data[`'12\34\\56'78''9'`] = `''12\\34\\\\56''78''''9''`
+	srcs := []string{
+		`aaa`,
+		`\`,
+		`'`,
+		`'\'`,
+		`'12\34\\56'78''9'`,
+	}
 
-	for src, goal := range data {
-		res := SecureString(src)
-		if res != goal {
-			t.Errorf(`SecureString(%q): expect %q, got %q`, src, goal, res)
+	type data struct {
+		db      *DB
+		results []string
+	}
+
+	dbs := map[string]data{
+		"mysql": {
+			&DB{driver: "mysql"},
+			[]string{
+				`aaa`,
+				`\\`,
+				`\'`,
+				`\'\\\'`,
+				`\'12\\34\\\\56\'78\'\'9\'`,
+			},
+		},
+		"pgsql": {
+			&DB{driver: "pgsql"},
+			[]string{
+				`aaa`,
+				`\\`,
+				`\'`,
+				`\'\\\'`,
+				`\'12\\34\\\\56\'78\'\'9\'`,
+			},
+		},
+		"mssql": {
+			&DB{driver: "mssql"},
+			[]string{
+				`aaa`,
+				`\`,
+				`''`,
+				`''\''`,
+				`''12\34\\56''78''''9''`,
+			},
+		},
+	}
+
+	for tp, db := range dbs {
+		for i, src := range srcs {
+			res := db.db.SecureString(src)
+			goal := db.results[i]
+			if res != goal {
+				t.Errorf(`%s SecureString(%q): expect "%s", got "%s"`, tp, src, goal, res)
+			}
 		}
 	}
 }

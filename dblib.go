@@ -23,13 +23,24 @@ type DB struct {
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-// SecureString --
-func SecureString(s string) string {
-	return strings.Replace(
-		strings.Replace(s, `\`, `\\`, -1),
-		`'`, `''`, -1)
+var (
+	replacers = map[string]*strings.Replacer{
+		"mysql": strings.NewReplacer(`'`, `\'`, `\`, `\\`),
+		"pgsql": strings.NewReplacer(`'`, `\'`, `\`, `\\`),
+		"mssql": strings.NewReplacer(`'`, `''`),
+	}
+)
 
+// SecureString --
+func (me *DB) SecureString(s string) string {
+	r, exists := replacers[me.driver]
+	if !exists {
+		return s
+	}
+	return r.Replace(s)
 }
+
+//----------------------------------------------------------------------------------------------------------------------------//
 
 func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{}) (result interface{}, err error) {
 
@@ -37,7 +48,7 @@ func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{
 		for i, v := range prm {
 			switch v.(type) {
 			case string:
-				prm[i] = SecureString(prm[i].(string))
+				prm[i] = me.SecureString(prm[i].(string))
 			}
 		}
 	}
