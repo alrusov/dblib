@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -53,8 +54,12 @@ func (me *DB) SecureString(s string) string {
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{}) (result interface{}, err error) {
+var (
+	errFilterRE      = regexp.MustCompile(`(\sdsn\s*=\s*".*://.*:)(.*)(@.*")`)
+	errFilterReplace = `$1*$3`
+)
 
+func (me *DB) execSQL(withResult bool, query string, secured bool, prm ...interface{}) (result interface{}, err error) {
 	if !secured {
 		for i, v := range prm {
 			switch v.(type) {
@@ -66,30 +71,34 @@ func (me *DB) execSQL(isOpen bool, query string, secured bool, prm ...interface{
 
 	preparedQuery := strings.TrimSpace(fmt.Sprintf(query, prm...))
 
-	for i := 0; i < me.maxRetry; i++ {
-		if isOpen {
+	try := 0
+	for {
+		if withResult {
 			result, err = me.db.Query(preparedQuery)
 		} else {
 			result, err = me.db.Exec(preparedQuery)
 		}
 
 		if err == nil {
-			break
-		} else {
-			//if (err == mysql.ErrInvalidConn) || strings.Contains(err.Error(), " connectex:") {
-			if strings.Contains(err.Error(), " connectex:") {
-				err = fmt.Errorf("Exec query (%s) error (%s), try %d from %d", preparedQuery, err.Error(), i+1, me.maxRetry)
-				if i < me.maxRetry-1 {
-					misc.Sleep(me.delayAfterError)
-				}
-			} else {
-				err = fmt.Errorf("Exec query (%s) error (%s)", preparedQuery, err.Error())
-				break
-			}
+			return
 		}
-	}
 
-	return result, err
+		msg := errFilterRE.ReplaceAllString(err.Error(), errFilterReplace)
+		if !strings.Contains(err.Error(), " connectex:") {
+			// Все ошибки, кроме соединения
+			err = fmt.Errorf(`Exec query (%s): "%s"`, preparedQuery, msg)
+			return
+		}
+
+		// Ошибка соединения
+		try++
+		err = fmt.Errorf(`Exec query (%s): "%s", was try %d from %d`, preparedQuery, msg, try, me.maxRetry)
+		if try == me.maxRetry {
+			return
+		}
+
+		misc.Sleep(me.delayAfterError)
+	}
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
