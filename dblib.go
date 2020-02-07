@@ -55,7 +55,7 @@ func (me *DB) SecureString(s string) string {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 var (
-	errFilterRE      = regexp.MustCompile(`(\sdsn\s*=\s*".*://.*:)(.*)(@.*")`)
+	errFilterRE      = regexp.MustCompile(`(\w*://.*:)(.*)(@.*)`)
 	errFilterReplace = `$1*$3`
 )
 
@@ -155,7 +155,8 @@ func (me *DB) Init(driver string, dsn string, maxConn int, maxRetry int) error {
 
 	db, err := sql.Open(me.driver, me.dsn)
 	if err != nil {
-		return err
+		msg := errFilterRE.ReplaceAllString(err.Error(), errFilterReplace)
+		return fmt.Errorf("%s", msg)
 	}
 
 	db.SetMaxOpenConns(maxConn)
