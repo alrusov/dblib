@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strconv"
 	"sync"
 	"time"
 
@@ -58,7 +59,7 @@ func fieldsFromPattern(rowPattern interface{}) (v []interface{}, err error) {
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
+func makeRowPattern(requestName string, rs *sql.Rows) (df *resultDef, err error) {
 
 	cols, err := rs.ColumnTypes()
 	if err != nil {
@@ -67,9 +68,20 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 
 	n := len(cols)
 	f := make([]reflect.StructField, n)
+	names := make(map[string]int, n)
 
 	for i := 0; i < n; i++ {
 		name := cols[i].Name()
+
+		n, exists := names[name]
+		if !exists {
+			n = 1
+			names[name] = 1
+		} else {
+			n++
+			names[name] = n
+		}
+
 		var tp reflect.Type
 		switch cols[i].ScanType() {
 		case reflect.TypeOf(bool(false)):
@@ -92,6 +104,9 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 
 		}
 
+		if n > 1 {
+			name += strconv.Itoa(n)
+		}
 		f[i] = reflect.StructField{
 			Name: "X" + name,
 			Type: tp,
@@ -153,7 +168,7 @@ func (me *DBext) Select(id uint64, rowPattern interface{}, name string, cacheNam
 
 		if !exists {
 			// Make row Pattern and fields
-			df, err = makeRowPattern(rs)
+			df, err = makeRowPattern(name, rs)
 			df.mutex = new(sync.Mutex)
 
 			// Save to cache for future use
