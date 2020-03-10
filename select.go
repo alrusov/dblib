@@ -59,7 +59,7 @@ func fieldsFromPattern(rowPattern interface{}) (v []interface{}, err error) {
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-func makeRowPattern(requestName string, rs *sql.Rows) (df *resultDef, err error) {
+func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 
 	cols, err := rs.ColumnTypes()
 	if err != nil {
@@ -76,11 +76,10 @@ func makeRowPattern(requestName string, rs *sql.Rows) (df *resultDef, err error)
 		n, exists := names[name]
 		if !exists {
 			n = 1
-			names[name] = 1
 		} else {
 			n++
-			names[name] = n
 		}
+		names[name] = n
 
 		var tp reflect.Type
 		switch cols[i].ScanType() {
@@ -168,7 +167,7 @@ func (me *DBext) Select(id uint64, rowPattern interface{}, name string, cacheNam
 
 		if !exists {
 			// Make row Pattern and fields
-			df, err = makeRowPattern(name, rs)
+			df, err = makeRowPattern(rs)
 			df.mutex = new(sync.Mutex)
 
 			// Save to cache for future use
