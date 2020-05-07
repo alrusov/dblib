@@ -17,7 +17,7 @@ const (
 	// MYSQL --
 	MYSQL = "mysql"
 	// PGSQL --
-	PGSQL = "pgsql"
+	PGSQL = "postgres"
 	// MSSQL --
 	MSSQL = "mssql"
 )

@@ -3,7 +3,6 @@ package dblib
 import (
 	"database/sql"
 	"encoding/json"
-	"time"
 )
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -18,14 +17,14 @@ type (
 	// NullInt64 --
 	NullInt64 sql.NullInt64
 
+	// NullInt32 --
+	NullInt32 sql.NullInt32
+
 	// NullFloat64 --
 	NullFloat64 sql.NullFloat64
 
 	// NullTime --
-	NullTime struct {
-		Time  time.Time
-		Valid bool
-	}
+	NullTime sql.NullTime
 )
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -76,6 +75,21 @@ func (v NullInt64) MarshalJSON() ([]byte, error) {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 // Scan implements the Scanner interface.
+func (v *NullInt32) Scan(value interface{}) error {
+	return (*sql.NullInt32)(v).Scan(value)
+}
+
+// MarshalJSON for NullInt32
+func (v NullInt32) MarshalJSON() ([]byte, error) {
+	if !v.Valid {
+		return []byte("null"), nil
+	}
+	return json.Marshal(v.Int32)
+}
+
+//----------------------------------------------------------------------------------------------------------------------------//
+
+// Scan implements the Scanner interface.
 func (v *NullFloat64) Scan(value interface{}) error {
 	return (*sql.NullFloat64)(v).Scan(value)
 }
@@ -92,8 +106,7 @@ func (v NullFloat64) MarshalJSON() ([]byte, error) {
 
 // Scan implements the Scanner interface.
 func (v *NullTime) Scan(value interface{}) error {
-	v.Time, v.Valid = value.(time.Time)
-	return nil
+	return (*sql.NullTime)(v).Scan(value)
 }
 
 // MarshalJSON for NullTime

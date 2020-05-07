@@ -92,6 +92,9 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 		case reflect.TypeOf(int64(0)):
 			tp = reflect.TypeOf(NullInt64{})
 
+		case reflect.TypeOf(int32(0)):
+			tp = reflect.TypeOf(NullInt32{})
+
 		case reflect.TypeOf(float64(0)):
 			tp = reflect.TypeOf(NullFloat64{})
 
