@@ -137,7 +137,7 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 func (me *DBext) Select(id uint64, rowPattern interface{}, name string, cacheName string, offset uint, count uint, params ...interface{}) (result []interface{}, code int, err error) {
 	t0 := misc.NowUTC().UnixNano()
 	defer func() {
-		misc.LogProcessingTime("", id, `db.select "`+name+`(`+cacheName+`)"`, "", t0)
+		misc.LogProcessingTime("", "", id, `db.select "`+name+`(`+cacheName+`)"`, "", t0)
 	}()
 
 	if cacheName == "" {

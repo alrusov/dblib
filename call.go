@@ -11,7 +11,7 @@ import (
 func (me *DBext) call(withoutSecuring bool, id uint64, name string, params ...interface{}) (_ interface{}, code int, err error) {
 	t0 := misc.NowUTC().UnixNano()
 	defer func() {
-		misc.LogProcessingTime("", id, "db.call", "", t0)
+		misc.LogProcessingTime("", "", id, "db.call", "", t0)
 	}()
 
 	if withoutSecuring {
