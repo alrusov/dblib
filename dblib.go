@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alrusov/log"
 	"github.com/alrusov/misc"
 )
 
@@ -26,6 +27,7 @@ const (
 
 // DB --
 type DB struct {
+	logFacility     *log.Facility
 	driver          string
 	dsn             string
 	db              *sql.DB
@@ -70,6 +72,14 @@ func (me *DB) execSQL(withResult bool, query string, secured bool, prm ...interf
 	}
 
 	preparedQuery := strings.TrimSpace(fmt.Sprintf(query, prm...))
+
+	defer func() {
+		msg := "OK"
+		if err != nil {
+			msg = err.Error()
+		}
+		me.logFacility.Message(log.TRACE3, `Query: %s; Result: %s`, preparedQuery, msg)
+	}()
 
 	try := 0
 	for {
@@ -147,7 +157,8 @@ func exit(code int, p interface{}) {
 }
 
 // Init --
-func (me *DB) Init(driver string, dsn string, maxConn int, maxRetry int) error {
+func (me *DB) Init(logFacility *log.Facility, driver string, dsn string, maxConn int, maxRetry int) error {
+	me.logFacility = logFacility
 	me.driver = driver
 	me.dsn = dsn
 	me.maxRetry = maxRetry

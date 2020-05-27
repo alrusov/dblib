@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/alrusov/config"
+	"github.com/alrusov/log"
 	"github.com/alrusov/misc"
 )
 
@@ -31,12 +32,12 @@ func (me *DBext) DB() *DB {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 // NewDBext --
-func NewDBext(cfg *config.DB, queries misc.StringMap) (dbExt *DBext, err error) {
+func NewDBext(logFacility *log.Facility, cfg *config.DB, queries misc.StringMap) (dbExt *DBext, err error) {
 	dbExt = &DBext{
 		db:      &DB{},
 		queries: queries,
 	}
-	err = dbExt.db.Init(cfg.Type, cfg.DSN, cfg.Timeout, cfg.Retry)
+	err = dbExt.db.Init(logFacility, cfg.Type, cfg.DSN, cfg.Timeout, cfg.Retry)
 	if err != nil {
 		return
 	}
