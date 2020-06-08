@@ -26,23 +26,13 @@ func (me *DBext) openRecordset(name string, secured bool, offset uint, count uin
 }
 
 // OpenRecordset -- fetching data
-func (me *DBext) OpenRecordset(name string, params ...interface{}) (*sql.Rows, error) {
-	return me.openRecordset(name, false, 0, 0, params...)
+func (me *DBext) OpenRecordset(name string, secured bool, params ...interface{}) (*sql.Rows, error) {
+	return me.openRecordset(name, secured, 0, 0, params...)
 }
 
 // OpenRecordsetExtended -- fetching data with providing a start position and max count
-func (me *DBext) OpenRecordsetExtended(name string, offset uint, count uint, params ...interface{}) (*sql.Rows, error) {
-	return me.openRecordset(name, false, offset, count, params...)
-}
-
-// OpenRecordsetWithoutSecuring -- fetching data without special symbols escaping
-func (me *DBext) OpenRecordsetWithoutSecuring(name string, params ...interface{}) (*sql.Rows, error) {
-	return me.openRecordset(name, true, 0, 0, params...)
-}
-
-// OpenRecordsetWithoutSecuringExtended -- fetching data with providing a start position, max count and without special symbols escaping
-func (me *DBext) OpenRecordsetWithoutSecuringExtended(name string, offset uint, count uint, params ...interface{}) (*sql.Rows, error) {
-	return me.openRecordset(name, true, offset, count, params...)
+func (me *DBext) OpenRecordsetExtended(name string, secured bool, offset uint, count uint, params ...interface{}) (*sql.Rows, error) {
+	return me.openRecordset(name, secured, offset, count, params...)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//

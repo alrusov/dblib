@@ -134,7 +134,7 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 //----------------------------------------------------------------------------------------------------------------------------//
 
 // Select -- Get data from table or view
-func (me *DBext) Select(id uint64, rowPattern interface{}, name string, cacheName string, offset uint, count uint, params ...interface{}) (result []interface{}, code int, err error) {
+func (me *DBext) Select(id uint64, secured bool, rowPattern interface{}, name string, cacheName string, offset uint, count uint, params ...interface{}) (result []interface{}, code int, err error) {
 	t0 := misc.NowUTC().UnixNano()
 	defer func() {
 		misc.LogProcessingTime(me.db.logFacility.Name(), "", id, `db.select "`+name+`(`+cacheName+`)"`, "", t0)
@@ -146,7 +146,7 @@ func (me *DBext) Select(id uint64, rowPattern interface{}, name string, cacheNam
 
 	// Make a query
 
-	rs, err := me.OpenRecordsetExtended(name, offset, count, params...)
+	rs, err := me.OpenRecordsetExtended(name, secured, offset, count, params...)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
