@@ -1,22 +1,31 @@
 package dblib
 
-import "database/sql"
+import (
+	"net/http"
+
+	"github.com/alrusov/misc"
+)
 
 //----------------------------------------------------------------------------------------------------------------------------//
 
-// Exec --
-func (me *DBext) Exec(name string, secured bool, params ...interface{}) (sql.Result, error) {
+// Exec -- execute stored procedure or other
+func (me *DBext) Exec(id uint64, secured bool, name string, params ...interface{}) (result interface{}, code int, err error) {
+	t0 := misc.NowUTC().UnixNano()
+	defer func() {
+		misc.LogProcessingTime(me.db.logFacility.Name(), "", id, "db.call", "", t0)
+	}()
+
 	query, err := me.getQuery(name)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
-	result, err := me.db.Exec(query, secured, params...)
+	result, err = me.db.Exec(query, secured, params...)
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
-	return result, err
+	return nil, http.StatusOK, nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
