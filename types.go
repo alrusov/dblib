@@ -2,7 +2,8 @@ package dblib
 
 import (
 	"database/sql"
-	"encoding/json"
+
+	"github.com/alrusov/jsonw"
 )
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -39,7 +40,7 @@ func (v NullBool) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.Bool)
+	return jsonw.Marshal(v.Bool)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -54,7 +55,7 @@ func (v NullString) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.String)
+	return jsonw.Marshal(v.String)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -69,7 +70,7 @@ func (v NullInt64) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.Int64)
+	return jsonw.Marshal(v.Int64)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -84,7 +85,7 @@ func (v NullInt32) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.Int32)
+	return jsonw.Marshal(v.Int32)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -99,7 +100,7 @@ func (v NullFloat64) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.Float64)
+	return jsonw.Marshal(v.Float64)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
@@ -114,7 +115,7 @@ func (v NullTime) MarshalJSON() ([]byte, error) {
 	if !v.Valid {
 		return []byte("null"), nil
 	}
-	return json.Marshal(v.Time)
+	return jsonw.Marshal(v.Time)
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
