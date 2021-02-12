@@ -10,7 +10,7 @@ import (
 
 // Exec -- execute stored procedure or other
 func (me *DBext) Exec(id uint64, secured bool, name string, params ...interface{}) (result interface{}, code int, err error) {
-	t0 := misc.NowUTC().UnixNano()
+	t0 := misc.NowUnixNano()
 	defer func() {
 		misc.LogProcessingTime(me.db.logFacility.Name(), "", id, "db.call", "", t0)
 	}()
