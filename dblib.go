@@ -171,6 +171,7 @@ func (me *DB) Init(logFacility *log.Facility, driver string, dsn string, maxConn
 	}
 
 	db.SetMaxOpenConns(maxConn)
+
 	me.db = db
 	misc.AddExitFunc("dblib.exit", exit, me)
 

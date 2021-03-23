@@ -37,7 +37,7 @@ func NewDBext(logFacility *log.Facility, cfg *config.DB, queries misc.StringMap)
 		db:      &DB{},
 		queries: queries,
 	}
-	err = dbExt.db.Init(logFacility, cfg.Type, cfg.DSN, cfg.Timeout, cfg.Retry)
+	err = dbExt.db.Init(logFacility, cfg.Type, cfg.DSN, cfg.MaxConnection, cfg.Retry)
 	if err != nil {
 		return
 	}
