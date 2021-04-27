@@ -58,7 +58,7 @@ func TestSecureString(t *testing.T) {
 			res := db.db.SecureString(src)
 			goal := db.results[i]
 			if res != goal {
-				t.Errorf(`%s SecureString(%q): expect "%s", got "%s"`, tp, src, goal, res)
+				t.Errorf(`%s SecureString(%q): expected "%s", got "%s"`, tp, src, goal, res)
 			}
 		}
 	}
