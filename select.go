@@ -231,6 +231,8 @@ func GetVals(data interface{}, fieldNames []string) (values []interface{}, err e
 			vv = v.(NullBool).Bool
 		case NullString:
 			vv = v.(NullString).String
+		case NullInt32:
+			vv = int64(v.(NullInt32).Int32)
 		case NullInt64:
 			vv = v.(NullInt64).Int64
 		case NullFloat64:
@@ -238,7 +240,7 @@ func GetVals(data interface{}, fieldNames []string) (values []interface{}, err e
 		case NullTime:
 			vv = v.(NullTime).Time
 		default:
-			return nil, fmt.Errorf(`Bad type of the field "%s"`, name)
+			return nil, fmt.Errorf(`Unsupported type %T of the field "%s"`, v, name)
 		}
 
 		values[i] = vv
