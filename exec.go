@@ -25,7 +25,7 @@ func (me *DBext) Exec(id uint64, secured bool, name string, params ...interface{
 		return nil, http.StatusInternalServerError, err
 	}
 
-	return nil, http.StatusOK, nil
+	return result, http.StatusOK, nil
 }
 
 //----------------------------------------------------------------------------------------------------------------------------//
