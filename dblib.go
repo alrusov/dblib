@@ -2,7 +2,6 @@ package dblib
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -122,7 +121,7 @@ func (me *DB) OpenRecordset(query string, secured bool, prm ...interface{}) (res
 		result, ok = r.(*sql.Rows)
 		if !ok {
 			result = nil
-			err = errors.New("Bad result type")
+			err = fmt.Errorf("bad result type")
 		}
 	} else if result != nil {
 		result.Close()
@@ -140,7 +139,7 @@ func (me *DB) Exec(query string, secured bool, prm ...interface{}) (result sql.R
 		result, ok = r.(sql.Result)
 		if !ok {
 			result = nil
-			err = errors.New("Bad result type")
+			err = fmt.Errorf("bad result type")
 		}
 	}
 

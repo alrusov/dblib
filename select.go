@@ -46,7 +46,7 @@ func fieldsFromPattern(rowPattern interface{}) (v []interface{}, err error) {
 	}
 
 	if fc == 0 {
-		err = fmt.Errorf(`No exported fields on the structure "%s"`, reflect.TypeOf(rowPattern))
+		err = fmt.Errorf(`no exported fields on the structure "%s"`, reflect.TypeOf(rowPattern))
 		return
 	}
 
@@ -81,6 +81,8 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 		}
 		names[name] = n
 
+		fmt.Printf("%d %#v\n", i, cols[i].ScanType())
+
 		var tp reflect.Type
 		switch cols[i].ScanType() {
 		case reflect.TypeOf(bool(false)):
@@ -104,6 +106,11 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 		case reflect.TypeOf([]uint8{}):
 			tp = reflect.TypeOf(NullString{})
 
+		default:
+			switch cols[i].DatabaseTypeName() {
+			case "FLOAT8": // workaround for pgsql float
+				tp = reflect.TypeOf(NullFloat64{})
+			}
 		}
 
 		if n > 1 {
@@ -220,27 +227,27 @@ func GetVals(data interface{}, fieldNames []string) (values []interface{}, err e
 	for i, name := range fieldNames {
 		f := fields.FieldByName("X" + name)
 		if !f.IsValid() {
-			return nil, fmt.Errorf(`Unknown field "%s"`, name)
+			return nil, fmt.Errorf(`unknown field "%s"`, name)
 		}
 
 		v := f.Interface()
 		var vv interface{}
 
-		switch v.(type) {
+		switch v := v.(type) {
 		case NullBool:
-			vv = v.(NullBool).Bool
+			vv = v.Bool
 		case NullString:
-			vv = v.(NullString).String
+			vv = v.String
 		case NullInt32:
-			vv = int64(v.(NullInt32).Int32)
+			vv = int64(v.Int32)
 		case NullInt64:
-			vv = v.(NullInt64).Int64
+			vv = v.Int64
 		case NullFloat64:
-			vv = v.(NullFloat64).Float64
+			vv = v.Float64
 		case NullTime:
-			vv = v.(NullTime).Time
+			vv = v.Time
 		default:
-			return nil, fmt.Errorf(`Unsupported type %T of the field "%s"`, v, name)
+			return nil, fmt.Errorf(`unsupported type %T of the field "%s"`, v, name)
 		}
 
 		values[i] = vv

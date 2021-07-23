@@ -14,7 +14,7 @@ func (o tunerOptions) getUintOption(name string) (uint, error) {
 
 	v, ok := i.(uint)
 	if !ok {
-		return 0, fmt.Errorf(`Option "%s" has type %T, expected %T`, name, i, v)
+		return 0, fmt.Errorf(`option "%s" has type %T, expected %T`, name, i, v)
 	}
 
 	return v, nil
