@@ -81,8 +81,6 @@ func makeRowPattern(rs *sql.Rows) (df *resultDef, err error) {
 		}
 		names[name] = n
 
-		fmt.Printf("%d %#v\n", i, cols[i].ScanType())
-
 		var tp reflect.Type
 		switch cols[i].ScanType() {
 		case reflect.TypeOf(bool(false)):
